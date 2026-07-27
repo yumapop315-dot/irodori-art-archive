@@ -1,0 +1,197 @@
+@import "tailwindcss";
+
+/* ブルアカ風カラートークン */
+:root {
+  --ba-blue: #0098ff;
+  --ba-blue-deep: #0075d8;
+  --ba-blue-pale: #e8f4ff;
+  --ba-ink: #2d4665;
+  --ba-yellow: #ffd83d;
+  --ba-bg: #f4f9ff;
+}
+
+body {
+  color: var(--ba-ink);
+  font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic",
+    Meiryo, system-ui, sans-serif;
+  /* 空色の地に、ごく薄い斜めストライプ（BAのUIパターン） */
+  background-color: var(--ba-bg);
+  background-image: repeating-linear-gradient(
+    -55deg,
+    rgba(0, 152, 255, 0.035) 0px,
+    rgba(0, 152, 255, 0.035) 18px,
+    transparent 18px,
+    transparent 42px
+  );
+  background-attachment: fixed;
+}
+
+/* --- BA風パーツ --- */
+
+/* 平行四辺形ボタン（本体を傾け、中身を戻す） */
+.ba-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transform: skewX(-10deg);
+  border-radius: 6px;
+  background: linear-gradient(180deg, #22a6ff 0%, var(--ba-blue) 55%, var(--ba-blue-deep) 100%);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 2px 0 rgba(0, 90, 170, 0.45), 0 3px 8px rgba(0, 120, 210, 0.25);
+  transition: transform 0.1s ease, filter 0.15s ease;
+}
+.ba-btn > * {
+  transform: skewX(10deg);
+}
+.ba-btn:hover {
+  filter: brightness(1.07);
+}
+.ba-btn:active {
+  transform: skewX(-10deg) translateY(1px);
+  box-shadow: 0 1px 0 rgba(0, 90, 170, 0.45);
+}
+
+/* 平行四辺形チップ（ソート・フィルタ用） */
+.ba-chip {
+  display: inline-flex;
+  align-items: center;
+  transform: skewX(-10deg);
+  border-radius: 5px;
+  background: #fff;
+  color: #5c7695;
+  border: 1px solid #d5e5f5;
+  box-shadow: 0 1px 2px rgba(45, 70, 101, 0.08);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.ba-chip > * {
+  transform: skewX(10deg);
+}
+.ba-chip:hover {
+  background: var(--ba-blue-pale);
+  color: var(--ba-blue-deep);
+}
+.ba-chip-active {
+  background: linear-gradient(180deg, #22a6ff, var(--ba-blue-deep));
+  border-color: var(--ba-blue-deep);
+  color: #fff;
+  font-weight: 700;
+}
+.ba-chip-active:hover {
+  background: linear-gradient(180deg, #22a6ff, var(--ba-blue-deep));
+  color: #fff;
+}
+
+/* セクション見出し: 左に青の斜めバー */
+.ba-heading {
+  position: relative;
+  padding-left: 14px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+.ba-heading::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.18em;
+  bottom: 0.18em;
+  width: 6px;
+  transform: skewX(-10deg);
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--ba-blue), var(--ba-blue-deep));
+}
+
+/* ヘッダー下の斜めストライプライン */
+.ba-stripe-line {
+  height: 4px;
+  background: repeating-linear-gradient(
+    -55deg,
+    var(--ba-blue) 0px,
+    var(--ba-blue) 10px,
+    var(--ba-yellow) 10px,
+    var(--ba-yellow) 14px,
+    var(--ba-blue-pale) 14px,
+    var(--ba-blue-pale) 24px
+  );
+}
+
+/* ヘイロー（天使の輪）ロゴ */
+.ba-halo {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 3.5px solid var(--ba-blue);
+  box-shadow: 0 0 0 2.5px rgba(0, 152, 255, 0.22), inset 0 0 3px rgba(0, 152, 255, 0.35);
+  flex: none;
+}
+
+/* サイトロゴ: 丸ゴシック太字 + グラデーション文字 + 斜体 */
+.ba-logo {
+  font-family: "M PLUS Rounded 1c", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", sans-serif;
+  font-weight: 800;
+  font-style: italic;
+  font-size: 1.35rem;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  background: linear-gradient(115deg, #0075d8 0%, #0098ff 45%, #38c4ff 80%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 1px 0 rgba(0, 117, 216, 0.18));
+  padding-right: 0.15em; /* 斜体の見切れ防止 */
+}
+.ba-logo-sens {
+  background: linear-gradient(115deg, #b45309 0%, #f59e0b 50%, #fbbf24 85%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(0 1px 0 rgba(180, 83, 9, 0.18));
+}
+.ba-logo-r18 {
+  background: linear-gradient(115deg, #9f1239 0%, #e11d48 50%, #fb7185 85%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(0 1px 0 rgba(159, 18, 57, 0.18));
+}
+
+/* きわどいモード時の差し替え */
+.ba-halo-sens {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 2.5px rgba(245, 158, 11, 0.25), inset 0 0 3px rgba(245, 158, 11, 0.4);
+}
+.ba-stripe-line-sens {
+  background: repeating-linear-gradient(
+    -55deg,
+    #f59e0b 0px,
+    #f59e0b 10px,
+    #fcd34d 10px,
+    #fcd34d 14px,
+    #fef3c7 14px,
+    #fef3c7 24px
+  );
+}
+
+/* R18モード時の差し替え */
+.ba-halo-r18 {
+  border-color: #e11d48;
+  box-shadow: 0 0 0 2.5px rgba(225, 29, 72, 0.22), inset 0 0 3px rgba(225, 29, 72, 0.35);
+}
+.ba-stripe-line-r18 {
+  background: repeating-linear-gradient(
+    -55deg,
+    #e11d48 0px,
+    #e11d48 10px,
+    #fda4af 10px,
+    #fda4af 14px,
+    #ffe4e6 14px,
+    #ffe4e6 24px
+  );
+}
+
+/* カード: ホバーでふわっと浮く */
+.ba-card {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.ba-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 120, 210, 0.14);
+}

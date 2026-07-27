@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "bluearchive-search",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 3000,
+      "cwd": "C:\\Users\\shimadayuma\\Desktop\\Cload Code\\画像サーチ\\bluearchive-search"
+    }
+  ]
+}
