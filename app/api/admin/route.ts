@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db, setPostTags, bulkAddTags, bulkDeletePosts, resolveRemovalRequest, deleteStudent } from "@/lib/db";
+import { db, setPostTags, bulkAddTags, bulkDeletePosts, approvePosts, resolveRemovalRequest, deleteStudent } from "@/lib/db";
 import { isAdminRequest } from "@/lib/adminAuth";
 import { isTweetGone } from "@/lib/tweet";
 
@@ -28,6 +28,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "bad request" }, { status: 400 });
     }
     const count = bulkAddTags(postIds, tags);
+    return NextResponse.json({ ok: true, count });
+  }
+
+  // 自動タグの内容をそのまま承認して公開（タグは変えない）
+  if (action === "bulkApprove") {
+    const postIds: number[] = Array.isArray(body.postIds)
+      ? body.postIds.map(Number).filter((n: number) => Number.isInteger(n) && n > 0).slice(0, 200)
+      : [];
+    if (postIds.length === 0) {
+      return NextResponse.json({ error: "bad request" }, { status: 400 });
+    }
+    const count = approvePosts(postIds);
     return NextResponse.json({ ok: true, count });
   }
 

@@ -21,7 +21,7 @@ export default async function Image({ params }: { params: Promise<{ name: string
     page: 1,
     perPage: 1,
     rating: "all",
-    taggedOnly: true,
+    publicOnly: true,
   });
 
   const label = "のファンアート・イラスト一覧";

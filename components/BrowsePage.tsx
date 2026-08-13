@@ -54,7 +54,7 @@ export default async function BrowsePage({
   const { posts, total } =
     unresolved.length > 0
       ? { posts: [], total: 0 }
-      : searchPosts({ tags: resolved, sort, page, perPage: PER_PAGE, rating: mode, taggedOnly: true });
+      : searchPosts({ tags: resolved, sort, page, perPage: PER_PAGE, rating: mode, publicOnly: true });
   const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
 
   const studentOptions = allStudents().map((s) => ({

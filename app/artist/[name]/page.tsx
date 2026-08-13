@@ -50,7 +50,7 @@ export default async function ArtistPage({ params, searchParams }: Props) {
     page,
     perPage: PER_PAGE,
     rating: mode,
-    taggedOnly: true,
+    publicOnly: true,
     author: screenName,
   });
   const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));

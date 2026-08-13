@@ -81,6 +81,32 @@ export default function AdminPostList({
     }
   }
 
+  // 自動タグの内容が正しいとき、タグを変えずにまとめて公開する
+  async function approveBulk() {
+    if (busy || selected.size === 0) return;
+    setBusy(true);
+    setMsg("");
+    try {
+      const res = await fetch("/api/admin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "bulkApprove", postIds: [...selected] }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setMsg(`${data.count}件を確認済みにして公開しました`);
+        setSelected(new Set());
+        setBulkTags([]);
+        router.refresh();
+        setTimeout(() => setMsg(""), 3000);
+      } else {
+        setMsg("公開に失敗しました");
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function deleteBulk() {
     if (busy || selected.size === 0) return;
     if (!confirm(`選択した${selected.size}件を削除しますか？\nこの操作は元に戻せません。`)) return;
@@ -168,6 +194,14 @@ export default function AdminPostList({
               className="rounded-lg bg-sky-500 px-5 py-2 text-sm font-semibold text-white hover:bg-sky-600 disabled:opacity-40"
             >
               {busy ? "処理中..." : "付与して公開"}
+            </button>
+            <button
+              onClick={approveBulk}
+              disabled={busy}
+              className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-700 disabled:opacity-40"
+              title="自動タグのまま確認済みにして公開します（タグは変更しません）"
+            >
+              確認して公開
             </button>
             <button
               onClick={deleteBulk}

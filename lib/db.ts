@@ -242,6 +242,12 @@ export function toJson(r: PostRow): PostJson {
   return { ...r, tags: r.tags ? r.tags.split(",") : [], photos };
 }
 
+// 公開条件（公開側の全クエリで共通）: キャラタグが1つ以上付いていて、
+// かつ管理人が確認済み（auto_tagged=0）であること。
+// 登録時の自動タグ付けだけの投稿は auto_tagged=1 なので公開側には出ない。
+const PUBLISHED =
+  "EXISTS (SELECT 1 FROM post_students ps WHERE ps.post_id = p.id) AND p.auto_tagged = 0";
+
 const SORTS: Record<string, string> = {
   new: "p.created_at DESC, p.id DESC",
   posted_at: "p.posted_at DESC, p.id DESC",
@@ -259,7 +265,7 @@ export function searchPosts(opts: {
   status?: string;
   mode?: "and" | "or";
   untaggedOnly?: boolean;
-  taggedOnly?: boolean; // 公開側: タグ未設定の投稿を隠す
+  publicOnly?: boolean; // 公開側: タグ未設定・自動タグ未確認の投稿を隠す
   autoTaggedOnly?: boolean; // 管理: 自動タグ付け済み（未確認）だけ
   rating?: Rating | "any";
   author?: string; // screen_nameで絞り込み（絵師ページ用）
@@ -285,8 +291,8 @@ export function searchPosts(opts: {
   if (opts.untaggedOnly) {
     where.push("NOT EXISTS (SELECT 1 FROM post_students ps WHERE ps.post_id = p.id)");
   }
-  if (opts.taggedOnly) {
-    where.push("EXISTS (SELECT 1 FROM post_students ps WHERE ps.post_id = p.id)");
+  if (opts.publicOnly) {
+    where.push(`(${PUBLISHED})`);
   }
   if (opts.autoTaggedOnly) {
     where.push("p.auto_tagged = 1");
@@ -342,7 +348,7 @@ export function postsByIds(ids: number[], rating: Rating = "all"): PostRow[] {
         (SELECT GROUP_CONCAT(s.name, ',') FROM post_students ps
           JOIN students s ON s.id = ps.student_id WHERE ps.post_id = p.id) AS tags
       FROM posts p WHERE p.status = 'approved' AND p.rating = ? AND p.id IN (${ph})
-        AND EXISTS (SELECT 1 FROM post_students ps WHERE ps.post_id = p.id)
+        AND ${PUBLISHED}
       ORDER BY p.created_at DESC`
     )
     .all(rating, ...ids) as PostRow[];
@@ -358,7 +364,8 @@ export function countNewSince(names: string[], since: number, rating: Rating = "
         `SELECT COUNT(DISTINCT p.id) AS c FROM posts p
          JOIN post_students ps ON ps.post_id = p.id
          JOIN students s ON s.id = ps.student_id
-         WHERE p.status = 'approved' AND p.rating = ? AND p.created_at > ? AND s.name IN (${ph})`
+         WHERE p.status = 'approved' AND p.rating = ? AND p.auto_tagged = 0
+           AND p.created_at > ? AND s.name IN (${ph})`
       // タグで結合しているため、タグ未設定の投稿はもともと数えられない
       )
       .get(rating, since, ...names) as { c: number }
@@ -407,7 +414,8 @@ export function studentsGrouped(rating: Rating = "all"): { school: string; stude
       `SELECT s.name, s.school,
         (SELECT COUNT(*) FROM post_students ps
          JOIN posts p ON p.id = ps.post_id
-         WHERE ps.student_id = s.id AND p.status = 'approved' AND p.rating = ?) AS count
+         WHERE ps.student_id = s.id AND p.status = 'approved' AND p.rating = ?
+           AND p.auto_tagged = 0) AS count
        FROM students s ORDER BY count DESC, s.name`
     )
     .all(rating) as { name: string; school: string; count: number }[];
@@ -430,7 +438,7 @@ export function popularTags(limit: number, rating: Rating = "all"): { name: stri
       `SELECT s.name, COUNT(*) AS count FROM post_students ps
        JOIN students s ON s.id = ps.student_id
        JOIN posts p ON p.id = ps.post_id
-       WHERE p.status = 'approved' AND p.rating = ?
+       WHERE p.status = 'approved' AND p.rating = ? AND p.auto_tagged = 0
        GROUP BY s.id ORDER BY count DESC LIMIT ?`
     )
     .all(rating, limit) as { name: string; count: number }[];
@@ -500,6 +508,18 @@ export function bulkAddTags(postIds: number[], names: string[]): number {
   return postIds.length;
 }
 
+// 自動タグの内容をそのまま承認して公開する（タグは変更せず未確認フラグだけ外す）
+export function approvePosts(postIds: number[]): number {
+  const ids = postIds.filter((n) => Number.isInteger(n) && n > 0);
+  if (ids.length === 0) return 0;
+  const upd = db.prepare("UPDATE posts SET auto_tagged = 0 WHERE id = ?");
+  const tx = db.transaction(() => {
+    for (const id of ids) upd.run(id);
+  });
+  tx();
+  return ids.length;
+}
+
 // 関連タグ: 指定キャラと同じ投稿に付いているキャラを共起回数順に返す
 export function relatedTags(
   name: string,
@@ -514,7 +534,7 @@ export function relatedTags(
        JOIN post_students ps2 ON ps2.post_id = ps1.post_id AND ps2.student_id != s1.id
        JOIN students s2 ON s2.id = ps2.student_id
        JOIN posts p ON p.id = ps1.post_id
-       WHERE s1.name = ? AND p.status = 'approved' AND p.rating = ?
+       WHERE s1.name = ? AND p.status = 'approved' AND p.rating = ? AND p.auto_tagged = 0
        GROUP BY s2.id ORDER BY count DESC, s2.name LIMIT ?`
     )
     .all(name, rating, limit) as { name: string; count: number }[];
@@ -531,8 +551,7 @@ export function weeklyRanking(rating: Rating, days: number, limit: number): Post
         (SELECT GROUP_CONCAT(s.name, ',') FROM post_students ps
           JOIN students s ON s.id = ps.student_id WHERE ps.post_id = p.id) AS tags
       FROM posts p
-      WHERE p.status = 'approved' AND p.rating = @rating
-        AND EXISTS (SELECT 1 FROM post_students ps WHERE ps.post_id = p.id)
+      WHERE p.status = 'approved' AND p.rating = @rating AND ${PUBLISHED}
       ORDER BY recent_likes DESC, like_count DESC, p.created_at DESC
       LIMIT @limit`
     )
@@ -556,7 +575,7 @@ export function monthlyArchive(
       FROM posts p
       WHERE p.status = 'approved' AND p.rating = @rating
         AND p.posted_at >= @start AND p.posted_at < @end
-        AND EXISTS (SELECT 1 FROM post_students ps WHERE ps.post_id = p.id)
+        AND ${PUBLISHED}
       ORDER BY like_count DESC, p.created_at DESC
       LIMIT @limit`
     )
@@ -572,7 +591,7 @@ export function monthsWithPosts(rating: Rating): string[] {
         `SELECT DISTINCT strftime('%Y-%m', p.posted_at, 'unixepoch') AS m
          FROM posts p
          WHERE p.status = 'approved' AND p.rating = ?
-           AND EXISTS (SELECT 1 FROM post_students ps WHERE ps.post_id = p.id)
+           AND ${PUBLISHED}
          ORDER BY m DESC`
       )
       .all(rating) as { m: string }[]
@@ -588,7 +607,7 @@ export function authorInfo(
     .prepare(
       `SELECT author_name, screen_name, COUNT(*) AS count FROM posts p
        WHERE p.screen_name = ? COLLATE NOCASE AND p.status = 'approved' AND p.rating = ?
-         AND EXISTS (SELECT 1 FROM post_students ps WHERE ps.post_id = p.id)
+         AND ${PUBLISHED}
        GROUP BY p.screen_name`
     )
     .get(screenName, rating) as { author_name: string; screen_name: string; count: number } | undefined;
@@ -608,6 +627,7 @@ export function topArtistsForTag(
        JOIN post_students ps ON ps.post_id = p.id
        JOIN students s ON s.id = ps.student_id
        WHERE s.name = ? AND p.status = 'approved' AND p.rating = ? AND p.screen_name != ''
+         AND p.auto_tagged = 0
        GROUP BY p.screen_name COLLATE NOCASE
        ORDER BY count DESC, p.screen_name LIMIT ?`
     )
@@ -624,7 +644,7 @@ export function sitemapTags(): { name: string; last: number }[] {
        FROM students s
        JOIN post_students ps ON ps.student_id = s.id
        JOIN posts p ON p.id = ps.post_id
-       WHERE p.status = 'approved' AND p.rating = 'all'
+       WHERE p.status = 'approved' AND p.rating = 'all' AND p.auto_tagged = 0
        GROUP BY s.id`
     )
     .all() as { name: string; last: number }[];
@@ -637,7 +657,7 @@ export function sitemapArtists(): { screen_name: string; last: number }[] {
       `SELECT p.screen_name, MAX(p.created_at) AS last
        FROM posts p
        WHERE p.status = 'approved' AND p.rating = 'all' AND p.screen_name != ''
-         AND EXISTS (SELECT 1 FROM post_students ps WHERE ps.post_id = p.id)
+         AND ${PUBLISHED}
        GROUP BY p.screen_name COLLATE NOCASE`
     )
     .all() as { screen_name: string; last: number }[];

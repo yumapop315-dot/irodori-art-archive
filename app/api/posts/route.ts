@@ -49,7 +49,7 @@ export async function GET(req: NextRequest) {
   const author = sp.get("author")?.trim() || undefined;
   const { posts, total } = searchPosts({
     tags: resolved, sort, page, perPage, mode, rating, author,
-    taggedOnly: true,
+    publicOnly: true,
   });
   return NextResponse.json({ posts: posts.map(toJson), total, resolved, unresolved: [] });
 }

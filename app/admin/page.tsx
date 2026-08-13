@@ -65,8 +65,9 @@ export default async function AdminPage({
         <p className="mb-1 font-bold">タグの付け方</p>
         <ol className="list-inside list-decimal space-y-1 text-sky-800">
           <li>
-            投稿者がハッシュタグ等でキャラを明示していれば、登録時に<b>自動でタグ付け＆公開</b>されます。
-            「自動タグ」フィルタで確認し、正しければそのまま、違えば修正して保存してください
+            投稿者がハッシュタグ等でキャラを明示していれば、登録時に<b>自動でタグ付け</b>されます。
+            ただし<b>この段階ではまだ非公開</b>です。「自動タグ」フィルタで中身を確認し、
+            正しければ<b>「確認して公開」</b>、違えば修正して保存してください
           </li>
           <li>「タグ未設定」フィルタで、自動判定できなかった投稿だけに絞り込む</li>
           <li>
@@ -79,8 +80,8 @@ export default async function AdminPage({
           左端バッジ:
           <span className="mx-1 font-bold text-emerald-700">緑=公開中</span>/
           <span className="mx-1 font-bold text-gray-600">灰色=非公開</span>/
-          <span className="mx-1 font-bold text-violet-700">紫=自動タグ（未確認）</span>。
-          タグを保存すると即座に公開されます。
+          <span className="mx-1 font-bold text-violet-700">紫=自動タグ（未確認・非公開）</span>。
+          管理人が保存／確認した時点で公開されます。複数選択すれば下部バーからまとめて公開できます。
         </p>
       </div>
 

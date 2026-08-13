@@ -125,7 +125,8 @@ function SingleForm({ students }: { students: StudentOption[] }) {
           {selected.length === 0 && autoTagged.length > 0 && (
             <>
               <br />
-              本文から「{autoTagged.join("・")}」を自動でタグ付けし、すぐに公開しました。
+              本文から「{autoTagged.join("・")}」を自動でタグ付けしました。
+              管理人が確認した後に一覧へ表示されます。
             </>
           )}
           {selected.length === 0 && autoTagged.length === 0 && (

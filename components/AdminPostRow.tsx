@@ -74,7 +74,8 @@ export default function AdminPostRow({
   if (deleted) return null;
 
   const isDead = post.status !== "approved";
-  const isPublic = !isDead && savedTags.length > 0;
+  // 自動タグのままの投稿は管理人が確認するまで非公開
+  const isPublic = !isDead && savedTags.length > 0 && !autoFlag;
   const dirty =
     tags.length !== savedTags.length || tags.some((t) => !savedTags.includes(t));
   const unusedSuggestions = suggestions.filter((s) => !tags.includes(s));
@@ -83,7 +84,9 @@ export default function AdminPostRow({
     ? "border-l-emerald-500"
     : isDead
       ? "border-l-red-400"
-      : "border-l-amber-400";
+      : autoFlag
+        ? "border-l-violet-400"
+        : "border-l-amber-400";
 
   return (
     <div
@@ -111,15 +114,17 @@ export default function AdminPostRow({
           ) : (
             <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-200 px-3 py-1 text-xs font-bold text-gray-600">
               <span
-                className={`h-2 w-2 rounded-full ${isDead ? "bg-red-500" : "bg-amber-500"}`}
+                className={`h-2 w-2 rounded-full ${
+                  isDead ? "bg-red-500" : autoFlag ? "bg-violet-500" : "bg-amber-500"
+                }`}
                 aria-hidden="true"
               />
-              非公開（{isDead ? "ツイート消滅" : "タグ未設定"}）
+              非公開（{isDead ? "ツイート消滅" : autoFlag ? "自動タグ未確認" : "タグ未設定"}）
             </span>
           )}
           {autoFlag && (
             <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-bold text-violet-700">
-              自動タグ（未確認）
+              確認待ち（保存で公開）
             </span>
           )}
         </div>
@@ -248,12 +253,16 @@ export default function AdminPostRow({
         </div>
         <button
           onClick={save}
-          disabled={busy || (!dirty && !saved)}
+          disabled={busy || (!dirty && !autoFlag && !saved)}
           className={`rounded-lg px-4 py-1.5 font-semibold text-white disabled:opacity-40 ${
-            dirty ? "animate-pulse bg-orange-500 hover:bg-orange-600" : "bg-sky-500"
+            dirty
+              ? "animate-pulse bg-orange-500 hover:bg-orange-600"
+              : autoFlag
+                ? "bg-violet-600 hover:bg-violet-700"
+                : "bg-sky-500"
           }`}
         >
-          {saved ? "保存✓" : dirty ? "保存する（未保存）" : "保存"}
+          {saved ? "保存✓" : dirty ? "保存する（未保存）" : autoFlag ? "確認して公開" : "保存"}
         </button>
       </div>
 
