@@ -6,6 +6,7 @@ import ModeToggle from "@/components/ModeToggle";
 import JsonLd from "@/components/JsonLd";
 import { SITE_NAME, SITE_DESC, SITE_URL } from "@/lib/site";
 import { getMode } from "@/lib/mode";
+import { getSetting, NOTICE_KEY } from "@/lib/db";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -39,6 +40,15 @@ export default async function RootLayout({
     ) : null;
 
   const adsenseClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT;
+
+  // 管理人の一言（/admin で編集。空なら枠ごと非表示）
+  const notice = getSetting(NOTICE_KEY).trim();
+  const noticeStyle =
+    mode === "r18"
+      ? "border-rose-200 bg-rose-50 text-rose-900"
+      : mode === "sensitive"
+        ? "border-amber-200 bg-amber-50 text-amber-900"
+        : "border-sky-200 bg-[var(--ba-blue-pale)] text-[var(--ba-ink)]";
 
   return (
     <html lang="ja" className="h-full antialiased">
@@ -112,6 +122,16 @@ export default async function RootLayout({
           </div>
           <div className={`ba-stripe-line ba-stripe-line${suffix}`} aria-hidden="true"></div>
         </header>
+        {notice && (
+          <div className={`border-b ${noticeStyle}`}>
+            <div className="mx-auto flex w-full max-w-6xl items-start gap-2 px-4 py-2">
+              <span className="mt-px shrink-0 rounded-md bg-white/70 px-2 py-0.5 text-[11px] font-bold">
+                管理人より
+              </span>
+              <p className="min-w-0 whitespace-pre-wrap text-sm leading-relaxed">{notice}</p>
+            </div>
+          </div>
+        )}
         <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">{children}</main>
         <footer className="border-t border-gray-200 bg-white">
           <div className="mx-auto w-full max-w-6xl px-4 py-6 text-center text-xs text-gray-400">

@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db, setPostTags, bulkAddTags, bulkDeletePosts, approvePosts, resolveRemovalRequest, deleteStudent } from "@/lib/db";
+import {
+  db, setPostTags, bulkAddTags, bulkDeletePosts, approvePosts, resolveRemovalRequest,
+  deleteStudent, setSetting, NOTICE_KEY, NOTICE_MAX,
+} from "@/lib/db";
 import { isAdminRequest } from "@/lib/adminAuth";
 import { isTweetGone } from "@/lib/tweet";
 
@@ -112,6 +115,13 @@ export async function POST(req: NextRequest) {
     db.prepare("UPDATE students SET school = 'その他' WHERE school = ?").run(name);
     db.prepare("DELETE FROM schools WHERE name = ?").run(name);
     return NextResponse.json({ ok: true });
+  }
+
+  // 管理人の一言（空文字で非表示）
+  if (action === "setNotice") {
+    const text = String(body.text ?? "").trim().slice(0, NOTICE_MAX);
+    setSetting(NOTICE_KEY, text);
+    return NextResponse.json({ ok: true, text });
   }
 
   if (action === "resolveRemoval") {

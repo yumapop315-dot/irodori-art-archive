@@ -154,6 +154,11 @@ function createDb() {
       created_at INTEGER NOT NULL DEFAULT (unixepoch()),
       resolved INTEGER NOT NULL DEFAULT 0
     );
+    CREATE TABLE IF NOT EXISTS settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL DEFAULT '',
+      updated_at INTEGER NOT NULL DEFAULT (unixepoch())
+    );
     CREATE INDEX IF NOT EXISTS idx_posts_status_created ON posts(status, created_at DESC);
     CREATE INDEX IF NOT EXISTS idx_likes_created ON likes(created_at);
   `);
@@ -661,6 +666,26 @@ export function sitemapArtists(): { screen_name: string; last: number }[] {
        GROUP BY p.screen_name COLLATE NOCASE`
     )
     .all() as { screen_name: string; last: number }[];
+}
+
+// --- サイト設定（管理画面から編集する可変テキスト） ---
+
+// 管理人の一言（ヘッダー直下に表示）。空文字なら非表示
+export const NOTICE_KEY = "admin_notice";
+export const NOTICE_MAX = 200;
+
+export function getSetting(key: string): string {
+  const row = db.prepare("SELECT value FROM settings WHERE key = ?").get(key) as
+    | { value: string }
+    | undefined;
+  return row?.value ?? "";
+}
+
+export function setSetting(key: string, value: string) {
+  db.prepare(
+    `INSERT INTO settings(key, value, updated_at) VALUES (?, ?, unixepoch())
+     ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at`
+  ).run(key, value);
 }
 
 // --- 削除依頼 ---

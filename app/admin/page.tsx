@@ -1,9 +1,13 @@
 import Link from "next/link";
-import { allSchools, allStudents, listRemovalRequests, searchPosts, studentEntries, toJson } from "@/lib/db";
+import {
+  allSchools, allStudents, listRemovalRequests, searchPosts, studentEntries, toJson,
+  getSetting, NOTICE_KEY, NOTICE_MAX,
+} from "@/lib/db";
 import { isAdminRequest } from "@/lib/adminAuth";
 import { suggestTagsFromText } from "@/lib/normalize";
 import AdminLogin from "@/components/AdminLogin";
 import AdminPostList from "@/components/AdminPostList";
+import NoticeEditor from "@/components/NoticeEditor";
 import { CheckDeadButton, LogoutButton, RemovalRow } from "@/components/AdminTools";
 import StudentManager from "@/components/StudentManager";
 
@@ -59,6 +63,10 @@ export default async function AdminPage({
           <CheckDeadButton />
           <LogoutButton />
         </div>
+      </div>
+
+      <div className="mb-6">
+        <NoticeEditor initial={getSetting(NOTICE_KEY)} max={NOTICE_MAX} />
       </div>
 
       <div className="mb-6 rounded-xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-900">
