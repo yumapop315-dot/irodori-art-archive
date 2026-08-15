@@ -4,6 +4,7 @@ import Script from "next/script";
 import NotificationBell from "@/components/NotificationBell";
 import ModeToggle from "@/components/ModeToggle";
 import JsonLd from "@/components/JsonLd";
+import ScrollTopButton from "@/components/ScrollTopButton";
 import { SITE_NAME, SITE_DESC, SITE_URL } from "@/lib/site";
 import { getMode } from "@/lib/mode";
 import { getSetting, NOTICE_KEY } from "@/lib/db";
@@ -150,6 +151,7 @@ export default async function RootLayout({
             </p>
           </div>
         </footer>
+        <ScrollTopButton mode={mode} />
       </body>
     </html>
   );
