@@ -3,6 +3,7 @@ import Link from "next/link";
 import Script from "next/script";
 import NotificationBell from "@/components/NotificationBell";
 import ModeToggle from "@/components/ModeToggle";
+import MobileMenu from "@/components/MobileMenu";
 import JsonLd from "@/components/JsonLd";
 import ScrollTopButton from "@/components/ScrollTopButton";
 import { SITE_NAME, SITE_DESC, SITE_URL } from "@/lib/site";
@@ -119,6 +120,8 @@ export default async function RootLayout({
               <Link href="/register" className="ba-btn px-5 py-1.5 text-sm">
                 <span>登録</span>
               </Link>
+              {/* スマホ幅で隠れるリンクの受け皿 */}
+              <MobileMenu />
             </nav>
           </div>
           <div className={`ba-stripe-line ba-stripe-line${suffix}`} aria-hidden="true"></div>
