@@ -343,20 +343,23 @@ export function searchPosts(opts: {
   return { posts: rows.map((r) => ({ ...r, tags: r.tags ?? "" })), total };
 }
 
-export function postsByIds(ids: number[], rating: Rating = "all"): PostRow[] {
+// rating="any" なら3モード横断で返す（お気に入り一覧はモードを問わず全部出す）
+export function postsByIds(ids: number[], rating: Rating | "any" = "all"): PostRow[] {
   if (ids.length === 0) return [];
   const ph = ids.map(() => "?").join(",");
+  const ratingCond = rating === "any" ? "" : "AND p.rating = ?";
+  const args = rating === "any" ? ids : [rating, ...ids];
   const rows = db
     .prepare(
       `SELECT p.*,
         (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id) AS like_count,
         (SELECT GROUP_CONCAT(s.name, ',') FROM post_students ps
           JOIN students s ON s.id = ps.student_id WHERE ps.post_id = p.id) AS tags
-      FROM posts p WHERE p.status = 'approved' AND p.rating = ? AND p.id IN (${ph})
+      FROM posts p WHERE p.status = 'approved' ${ratingCond} AND p.id IN (${ph})
         AND ${PUBLISHED}
       ORDER BY p.created_at DESC`
     )
-    .all(rating, ...ids) as PostRow[];
+    .all(...args) as PostRow[];
   return rows.map((r) => ({ ...r, tags: r.tags ?? "" }));
 }
 

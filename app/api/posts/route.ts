@@ -7,11 +7,12 @@ export async function GET(req: NextRequest) {
   const sp = req.nextUrl.searchParams;
   const rating = await getMode();
 
-  // お気に入り一覧用: id指定
+  // お気に入り一覧用: id指定。自分でいいねしたものなので、
+  // 現在のモードに関係なく健全/きわどい/R18をすべて返す
   const idsParam = sp.get("ids");
   if (idsParam !== null) {
     const ids = idsParam.split(",").map(Number).filter((n) => Number.isInteger(n) && n > 0).slice(0, 100);
-    return NextResponse.json({ posts: postsByIds(ids, rating).map(toJson) });
+    return NextResponse.json({ posts: postsByIds(ids, "any").map(toJson) });
   }
 
   const students = studentEntries();
