@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { PostJson } from "@/lib/db";
 import TagSuggestInput, { type StudentOption } from "./TagSuggestInput";
 
@@ -29,6 +29,7 @@ export default function AdminPostRow({
   const [savedTags, setSavedTags] = useState<string[]>(post.tags);
   const [rating, setRating] = useState(post.rating);
   const [autoFlag, setAutoFlag] = useState(post.auto_tagged === 1);
+  const [related, setRelated] = useState<{ name: string; count: number }[]>([]);
   const [saved, setSaved] = useState(false);
   const [deleted, setDeleted] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -61,6 +62,30 @@ export default function AdminPostRow({
     if (!tags.includes(name)) setTags((prev) => [...prev, name]);
   }
 
+  // 付いているタグを元に「過去によくセットで付いているタグ」を引く
+  const tagKey = tags.join(",");
+  useEffect(() => {
+    if (tags.length === 0) {
+      setRelated([]);
+      return;
+    }
+    let cancelled = false;
+    fetch("/api/admin", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "coTags", tags }),
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!cancelled && d) setRelated(d.tags ?? []);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tagKey]);
+
   async function changeRating(next: string) {
     if (next === rating) return;
     if (await call("setRating", { rating: next })) setRating(next);
@@ -79,6 +104,10 @@ export default function AdminPostRow({
   const dirty =
     tags.length !== savedTags.length || tags.some((t) => !savedTags.includes(t));
   const unusedSuggestions = suggestions.filter((s) => !tags.includes(s));
+  // 本文からの候補と重複させない
+  const unusedRelated = related.filter(
+    (r) => !tags.includes(r.name) && !unusedSuggestions.includes(r.name)
+  );
 
   const edge = isPublic
     ? "border-l-emerald-500"
@@ -237,6 +266,23 @@ export default function AdminPostRow({
                 title="本文から検出した候補。クリックで追加"
               >
                 +{s}
+              </button>
+            ))}
+          </>
+        )}
+
+        {unusedRelated.length > 0 && (
+          <>
+            <span className="ml-2 text-xs text-gray-400">よく一緒に:</span>
+            {unusedRelated.map((r) => (
+              <button
+                key={r.name}
+                onClick={() => addTag(r.name)}
+                className="rounded-full border border-violet-300 bg-white px-3 py-1 text-xs text-violet-700 hover:bg-violet-50"
+                title={`過去に${r.count}件で一緒に付けられています。クリックで追加`}
+              >
+                +{r.name}
+                <span className="ml-1 text-[10px] text-violet-400">{r.count}</span>
               </button>
             ))}
           </>

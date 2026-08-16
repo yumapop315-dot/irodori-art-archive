@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   db, setPostTags, bulkAddTags, bulkDeletePosts, approvePosts, resolveRemovalRequest,
-  deleteStudent, setSetting, NOTICE_KEY, NOTICE_MAX,
+  deleteStudent, setSetting, coOccurringTags, NOTICE_KEY, NOTICE_MAX,
 } from "@/lib/db";
 import { isAdminRequest } from "@/lib/adminAuth";
 import { isTweetGone } from "@/lib/tweet";
@@ -32,6 +32,14 @@ export async function POST(req: NextRequest) {
     }
     const count = bulkAddTags(postIds, tags);
     return NextResponse.json({ ok: true, count });
+  }
+
+  // 付いているタグと過去によくセットで付けられたタグを返す（タグ付けの候補用）
+  if (action === "coTags") {
+    const tags: string[] = Array.isArray(body.tags)
+      ? body.tags.filter((t: unknown) => typeof t === "string").slice(0, 10)
+      : [];
+    return NextResponse.json({ tags: coOccurringTags(tags, 8) });
   }
 
   // 自動タグの内容をそのまま承認して公開（タグは変えない）

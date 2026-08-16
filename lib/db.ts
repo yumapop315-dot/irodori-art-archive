@@ -528,6 +528,26 @@ export function approvePosts(postIds: number[]): number {
   return ids.length;
 }
 
+// 管理画面のタグ付け補助: 指定タグと過去に一緒に付けられたタグを共起回数順に返す。
+// 公開側の relatedTags と違い、モード（rating）も公開状態も問わず全投稿を対象にする
+// （タグ付け中＝まだ非公開の投稿にも効かせたいため）。
+export function coOccurringTags(names: string[], limit = 8): { name: string; count: number }[] {
+  const clean = names.map((n) => n.trim()).filter(Boolean);
+  if (clean.length === 0) return [];
+  const ph = clean.map(() => "?").join(",");
+  return db
+    .prepare(
+      `SELECT s2.name, COUNT(*) AS count
+       FROM students s1
+       JOIN post_students ps1 ON ps1.student_id = s1.id
+       JOIN post_students ps2 ON ps2.post_id = ps1.post_id AND ps2.student_id != s1.id
+       JOIN students s2 ON s2.id = ps2.student_id
+       WHERE s1.name IN (${ph}) AND s2.name NOT IN (${ph})
+       GROUP BY s2.id ORDER BY count DESC, s2.name LIMIT ?`
+    )
+    .all(...clean, ...clean, limit) as { name: string; count: number }[];
+}
+
 // 関連タグ: 指定キャラと同じ投稿に付いているキャラを共起回数順に返す
 export function relatedTags(
   name: string,
