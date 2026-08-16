@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { PostJson } from "@/lib/db";
 import { follows, likedPosts, mutes } from "@/lib/clientStore";
+import { useLike } from "@/lib/useLike";
 import { tagPath } from "@/lib/paths";
 import PostCard from "./PostCard";
 import AdSlot from "./AdSlot";
@@ -235,6 +236,9 @@ export default function Feed({
   );
 }
 
+// スワイプと判定する最小移動量(px)。これ未満は「タップ」扱いにする
+const SWIPE_MIN = 50;
+
 export function Lightbox({
   post,
   index,
@@ -246,6 +250,10 @@ export function Lightbox({
   onClose: () => void;
   onNav: (i: number) => void;
 }) {
+  const { liked, count, toggle } = useLike(post.id, post.like_count);
+  const touch = useRef<{ x: number; y: number } | null>(null);
+  const last = post.photos.length - 1;
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -260,6 +268,24 @@ export function Lightbox({
     };
   }, [index, post.photos.length, onClose, onNav]);
 
+  function onTouchStart(e: React.TouchEvent) {
+    const t = e.touches[0];
+    touch.current = { x: t.clientX, y: t.clientY };
+  }
+
+  function onTouchEnd(e: React.TouchEvent) {
+    const start = touch.current;
+    touch.current = null;
+    if (!start) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - start.x;
+    const dy = t.clientY - start.y;
+    // 横移動が縦移動より大きいときだけページ送りにする（縦スワイプの誤爆防止）
+    if (Math.abs(dx) < SWIPE_MIN || Math.abs(dx) <= Math.abs(dy)) return;
+    if (dx < 0 && index < last) onNav(index + 1);
+    if (dx > 0 && index > 0) onNav(index - 1);
+  }
+
   const photo = post.photos[index];
   return (
     <div
@@ -269,51 +295,83 @@ export function Lightbox({
       aria-modal="true"
       aria-label="画像の拡大表示"
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={photo.url}
-        alt={`${post.author_name}のイラスト ${index + 1}枚目`}
-        referrerPolicy="no-referrer"
-        className="max-h-[80vh] max-w-full rounded-lg object-contain"
-        onClick={(e) => e.stopPropagation()}
-      />
       <div
-        className="mt-4 flex items-center gap-3 text-sm text-white"
+        className="flex max-h-[78vh] w-full justify-center"
+        onClick={(e) => e.stopPropagation()}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={photo.url}
+          alt={`${post.author_name}のイラスト ${index + 1}枚目`}
+          referrerPolicy="no-referrer"
+          draggable={false}
+          className="max-h-[78vh] max-w-full select-none rounded-lg object-contain"
+        />
+      </div>
+
+      {post.photos.length > 1 && (
+        <div
+          className="mt-3 flex items-center gap-4 text-sm text-white"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            onClick={() => onNav(index - 1)}
+            disabled={index === 0}
+            aria-label="前の画像"
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 disabled:opacity-30"
+          >
+            ←
+          </button>
+          <span className="tabular-nums">
+            {index + 1} / {post.photos.length}
+          </span>
+          <button
+            onClick={() => onNav(index + 1)}
+            disabled={index === last}
+            aria-label="次の画像"
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 disabled:opacity-30"
+          >
+            →
+          </button>
+        </div>
+      )}
+
+      <div
+        className="mt-3 flex flex-wrap items-center justify-center gap-2 text-sm text-white"
         onClick={(e) => e.stopPropagation()}
       >
-        {post.photos.length > 1 && (
-          <>
-            <button
-              onClick={() => onNav(index - 1)}
-              disabled={index === 0}
-              className="rounded-full bg-white/10 px-4 py-1.5 disabled:opacity-30"
-            >
-              ←
-            </button>
-            <span className="tabular-nums">
-              {index + 1} / {post.photos.length}
-            </span>
-            <button
-              onClick={() => onNav(index + 1)}
-              disabled={index === post.photos.length - 1}
-              className="rounded-full bg-white/10 px-4 py-1.5 disabled:opacity-30"
-            >
-              →
-            </button>
-          </>
-        )}
+        <button
+          onClick={toggle}
+          aria-pressed={liked}
+          aria-label={liked ? "いいねを取り消す" : "いいねする"}
+          className={`flex min-h-11 items-center gap-1.5 rounded-full px-5 tabular-nums transition-colors ${
+            liked ? "bg-pink-500 font-semibold text-white" : "bg-white/15 hover:bg-white/25"
+          }`}
+        >
+          <span aria-hidden="true">{liked ? "♥" : "♡"}</span>
+          <span>{count}</span>
+        </button>
         <a
           href={post.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="rounded-full bg-sky-500 px-4 py-1.5 font-semibold"
+          className="flex min-h-11 items-center rounded-full bg-sky-500 px-5 font-semibold"
         >
           Xで表示
         </a>
-        <button onClick={onClose} className="rounded-full bg-white/10 px-4 py-1.5">
+        <button
+          onClick={onClose}
+          className="flex min-h-11 items-center rounded-full bg-white/10 px-5"
+        >
           閉じる
         </button>
       </div>
+
+      {post.photos.length > 1 && (
+        <p className="mt-2 text-xs text-white/50 sm:hidden">左右にスワイプでめくれます</p>
+      )}
     </div>
   );
 }

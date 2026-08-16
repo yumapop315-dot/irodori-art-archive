@@ -13,6 +13,7 @@ import {
 import { resolveToken } from "@/lib/normalize";
 import { artistPath, tagPath } from "@/lib/paths";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
+import PopularTags from "@/components/PopularTags";
 import PostGrid from "@/components/PostGrid";
 import Pagination from "@/components/Pagination";
 import SearchForm from "@/components/SearchForm";
@@ -122,30 +123,20 @@ export default async function BrowsePage({
         />
       </div>
 
-      {popular.length > 0 && rawTags.length === 0 && (
-        <div className="mb-4 flex flex-wrap items-center justify-center gap-1.5 text-xs">
-          <span className="text-gray-400">人気タグ:</span>
-          {popular.map((p) => (
-            <Link
-              key={p.name}
-              href={tagPath(p.name)}
-              className="rounded-full bg-white px-3 py-1 text-sky-700 shadow-sm hover:bg-sky-50"
-            >
-              {p.name} <span className="text-gray-400">{p.count}</span>
-            </Link>
-          ))}
-          <Link href="/students" className="px-1 text-sky-600 hover:underline">
-            キャラ一覧 →
-          </Link>
-        </div>
-      )}
+      {popular.length > 0 && rawTags.length === 0 && <PopularTags tags={popular} />}
 
-      <nav className="mb-5 flex flex-wrap justify-center gap-2 text-sm" aria-label="並び替え">
+      {/* スマホでは横1行スクロール、sm以上は従来どおり中央寄せで折り返し */}
+      <nav
+        className="ba-scroll-x mb-4 -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 text-sm sm:mx-0 sm:mb-5 sm:flex-wrap sm:justify-center sm:overflow-x-visible sm:px-0"
+        aria-label="並び替え"
+      >
         {SORT_LABELS.map(([key, label]) => (
           <Link
             key={key}
             href={sortHref(key)}
-            className={`ba-chip px-4 py-1.5 ${sort === key ? "ba-chip-active" : ""}`}
+            className={`ba-chip shrink-0 whitespace-nowrap px-4 py-2 ${
+              sort === key ? "ba-chip-active" : ""
+            }`}
           >
             <span>{label}</span>
           </Link>

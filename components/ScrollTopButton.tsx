@@ -33,7 +33,7 @@ export default function ScrollTopButton({ mode }: { mode: Rating }) {
       title="ページ上部へ戻る"
       aria-hidden={!visible}
       tabIndex={visible ? 0 : -1}
-      className={`fixed bottom-5 right-5 z-40 flex h-12 w-12 items-center justify-center rounded-full text-white shadow-lg ring-2 ring-white/70 transition duration-200 ${
+      className={`fixed bottom-5 right-5 z-30 flex h-12 w-12 items-center justify-center rounded-full text-white shadow-lg ring-2 ring-white/70 transition duration-200 ${
         COLOR[mode]
       } ${visible ? "opacity-100" : "pointer-events-none translate-y-3 opacity-0"}`}
       style={{ marginBottom: "env(safe-area-inset-bottom)" }}

@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import type { PostJson } from "@/lib/db";
-import { getClientId, likedPosts, mutes } from "@/lib/clientStore";
+import { mutes } from "@/lib/clientStore";
+import { useLike } from "@/lib/useLike";
 import { artistPath, tagPath } from "@/lib/paths";
 
 function fmtDate(unix: number): string {
@@ -23,38 +24,8 @@ export default function PostCard({
   onOpenImage: (post: PostJson, index: number) => void;
   onMuted: (screenName: string) => void;
 }) {
-  const [liked, setLiked] = useState(false);
-  const [count, setCount] = useState(post.like_count);
-  const [busy, setBusy] = useState(false);
+  const { liked, count, toggle: toggleLike } = useLike(post.id, post.like_count);
   const [menuOpen, setMenuOpen] = useState(false);
-
-  useEffect(() => setLiked(likedPosts.has(post.id)), [post.id]);
-
-  async function toggleLike() {
-    if (busy) return;
-    setBusy(true);
-    const next = !liked;
-    setLiked(next);
-    setCount((c) => c + (next ? 1 : -1));
-    try {
-      const res = await fetch("/api/like", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ postId: post.id, clientId: getClientId() }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setLiked(data.liked);
-        setCount(data.count);
-        likedPosts.toggle(post.id, data.liked);
-      } else {
-        setLiked(!next);
-        setCount((c) => c + (next ? -1 : 1));
-      }
-    } finally {
-      setBusy(false);
-    }
-  }
 
   const photo = post.photos[0];
   const aspect = photo && photo.width > 0 ? photo.width / photo.height : 1;
@@ -140,7 +111,7 @@ export default function PostCard({
         <button
           onClick={toggleLike}
           aria-pressed={liked}
-          className={`flex items-center gap-1 rounded-full px-3 py-1 text-sm tabular-nums transition-colors ${
+          className={`flex min-h-11 items-center gap-1 rounded-full px-4 text-sm tabular-nums transition-colors ${
             liked
               ? "bg-pink-100 font-semibold text-pink-600"
               : "bg-gray-100 text-gray-500 hover:bg-pink-50 hover:text-pink-500"

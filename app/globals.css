@@ -140,6 +140,18 @@ body {
   filter: drop-shadow(0 1px 0 rgba(0, 117, 216, 0.18));
   padding-right: 0.15em; /* 斜体の見切れ防止 */
 }
+/* スマホではヘッダーを1段に収めるためロゴを小さくする */
+@media (max-width: 639px) {
+  .ba-logo {
+    font-size: 0.98rem;
+  }
+  .ba-halo {
+    width: 17px;
+    height: 17px;
+    border-width: 3px;
+  }
+}
+
 .ba-logo-sens {
   background: linear-gradient(115deg, #b45309 0%, #f59e0b 50%, #fbbf24 85%);
   -webkit-background-clip: text;
@@ -185,6 +197,15 @@ body {
     #ffe4e6 14px,
     #ffe4e6 24px
   );
+}
+
+/* 横スクロール領域（スマホのソート列）: スクロールバーは隠す */
+.ba-scroll-x {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.ba-scroll-x::-webkit-scrollbar {
+  display: none;
 }
 
 /* カード: ホバーでふわっと浮く */

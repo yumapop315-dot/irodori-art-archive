@@ -89,15 +89,19 @@ export default async function RootLayout({
             strategy="lazyOnload"
           />
         )}
-        <header className="sticky top-0 z-30 bg-white/92 backdrop-blur">
-          <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-3 gap-y-1 px-4 py-2.5">
+        {/* z-40: モード確認ダイアログ等がヘッダー内に出るため、上へ戻るボタン(z-30)より上に置く */}
+        <header className="sticky top-0 z-40 bg-white/92 backdrop-blur">
+          <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-2 gap-y-1 px-4 py-2 sm:gap-x-3 sm:py-2.5">
             <Link href="/" className="flex items-center gap-2">
               <span className={`ba-halo ba-halo${suffix}`} aria-hidden="true"></span>
               <span className={`ba-logo ba-logo${suffix}`}>{SITE_NAME}</span>
               {badge}
             </Link>
             <nav className="flex items-center gap-1 text-sm sm:gap-2">
-              <ModeToggle mode={mode} />
+              {/* スマホでは幅が足りないのでメニュー内に移す */}
+              <div className="hidden sm:block">
+                <ModeToggle mode={mode} />
+              </div>
               <Link
                 href="/ranking"
                 className="hidden rounded-md px-3 py-1.5 text-[var(--ba-ink)] hover:bg-[var(--ba-blue-pale)] sm:block"
@@ -117,11 +121,11 @@ export default async function RootLayout({
                 お気に入り
               </Link>
               <NotificationBell />
-              <Link href="/register" className="ba-btn px-5 py-1.5 text-sm">
+              <Link href="/register" className="ba-btn px-4 py-1.5 text-sm sm:px-5">
                 <span>登録</span>
               </Link>
-              {/* スマホ幅で隠れるリンクの受け皿 */}
-              <MobileMenu />
+              {/* スマホ幅で隠れるリンクとモード切替の受け皿 */}
+              <MobileMenu mode={mode} />
             </nav>
           </div>
           <div className={`ba-stripe-line ba-stripe-line${suffix}`} aria-hidden="true"></div>

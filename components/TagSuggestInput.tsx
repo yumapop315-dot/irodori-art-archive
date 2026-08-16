@@ -97,9 +97,13 @@ export default function TagSuggestInput({
         onFocus={() => setOpen(true)}
         onKeyDown={onKeyDown}
         placeholder={placeholder ?? "キャラ名（ひらがなでもOK）"}
-        className={`w-full rounded-lg border border-gray-300 bg-white focus:border-sky-400 focus:outline-none ${
-          compact ? "px-3 py-1.5 text-sm" : "px-3 py-2 text-sm"
+        /* text-base(16px)未満だとiOS Safariがフォーカス時に自動ズームする */
+        className={`w-full rounded-lg border border-gray-300 bg-white text-base focus:border-sky-400 focus:outline-none sm:text-sm ${
+          compact ? "px-3 py-1.5" : "px-3 py-2"
         }`}
+        autoCapitalize="off"
+        autoCorrect="off"
+        spellCheck={false}
       />
       {open && suggestions.length > 0 && (
         <ul className="absolute z-30 mt-1 w-full min-w-56 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">

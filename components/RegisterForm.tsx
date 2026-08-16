@@ -167,7 +167,7 @@ function SingleForm({ students }: { students: StudentOption[] }) {
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           placeholder="https://x.com/ユーザー名/status/..."
-          className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-sky-400 focus:outline-none"
+          className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-base focus:border-sky-400 sm:text-sm focus:outline-none"
         />
       </div>
 
@@ -321,7 +321,7 @@ function BulkForm() {
           rows={8}
           disabled={busy}
           placeholder={"https://x.com/.../status/...\nhttps://x.com/.../status/..."}
-          className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-sky-400 focus:outline-none disabled:bg-gray-50"
+          className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-base focus:border-sky-400 sm:text-sm focus:outline-none disabled:bg-gray-50"
         />
         <div className="mt-1 flex justify-between text-xs">
           <span className={lineCount > BULK_MAX ? "font-bold text-red-500" : "text-gray-400"}>

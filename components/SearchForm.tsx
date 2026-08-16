@@ -100,9 +100,14 @@ export default function SearchForm({
             }}
             onFocus={() => setOpen(true)}
             onKeyDown={onKeyDown}
-            placeholder={chips.length ? "" : "キャラ名で検索（ひらがな・ローマ字もOK）"}
-            className="min-w-[120px] flex-1 bg-transparent py-1 text-sm focus:outline-none"
+            placeholder={chips.length ? "" : "キャラ名で検索（ひらがな可）"}
+            /* text-base(16px)未満だとiOS Safariがフォーカス時に自動ズームするので下げない */
+            className="min-w-[120px] flex-1 bg-transparent py-1 text-base focus:outline-none sm:text-sm"
             aria-label="キャラ名で検索"
+            enterKeyHint="search"
+            autoCapitalize="off"
+            autoCorrect="off"
+            spellCheck={false}
           />
         </div>
         <button onClick={() => submit()} className="ba-btn shrink-0 px-6 py-2.5 text-sm">

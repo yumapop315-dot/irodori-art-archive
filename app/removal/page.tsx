@@ -60,7 +60,7 @@ export default function RemovalPage() {
             onChange={(e) => setUrl(e.target.value)}
             required
             placeholder="https://x.com/... または本サイトのページURL"
-            className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-sky-400 focus:outline-none"
+            className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-base focus:border-sky-400 sm:text-sm focus:outline-none"
           />
         </div>
         <div>
@@ -74,7 +74,7 @@ export default function RemovalPage() {
             required
             rows={4}
             placeholder="例: 投稿者本人です。この投稿の掲載を停止してください。"
-            className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-sky-400 focus:outline-none"
+            className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-base focus:border-sky-400 sm:text-sm focus:outline-none"
           />
         </div>
         <div>
@@ -86,7 +86,7 @@ export default function RemovalPage() {
             value={contact}
             onChange={(e) => setContact(e.target.value)}
             placeholder="XのID・メールアドレスなど（返信が必要な場合）"
-            className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-sky-400 focus:outline-none"
+            className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-base focus:border-sky-400 sm:text-sm focus:outline-none"
           />
         </div>
         {error && <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">{error}</p>}
