@@ -1,28 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+// PC専用。スマホではヘッダーを1行に収めるため出さず、
+// 代わりにメニューボタン(MobileMenu)にバッジを出している。
 import Link from "next/link";
-import { follows, followLastSeen } from "@/lib/clientStore";
+import { useFollowNewCount } from "@/lib/useFollowNewCount";
 
 export default function NotificationBell() {
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    const names = follows.get();
-    if (names.length === 0) return;
-    const since = followLastSeen.get() || Math.floor(Date.now() / 1000) - 7 * 86400;
-    fetch(
-      `/api/posts?tags=${encodeURIComponent(names.join(","))}&sinceCount=${since}`
-    )
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d) => d && setCount(d.count ?? 0))
-      .catch(() => {});
-  }, []);
+  const count = useFollowNewCount();
 
   return (
     <Link
       href="/following"
-      className="relative rounded-full p-1.5 text-gray-500 hover:bg-sky-50 sm:p-2"
+      className="relative hidden rounded-full p-2 text-gray-500 hover:bg-sky-50 sm:block"
       aria-label={count > 0 ? `フォロー中の新着${count}件` : "フォロー中の生徒"}
       title="フォロー中の生徒"
     >

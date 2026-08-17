@@ -5,6 +5,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useFollowNewCount } from "@/lib/useFollowNewCount";
 
 const ITEMS: [string, string][] = [
   ["/ranking", "ランキング"],
@@ -17,6 +18,8 @@ const ITEMS: [string, string][] = [
 export default function MobileMenu() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  // スマホではベルを出さないので、新着はこのボタンのバッジで知らせる
+  const newCount = useFollowNewCount();
 
   // ページを移動したら閉じる
   useEffect(() => {
@@ -39,8 +42,8 @@ export default function MobileMenu() {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-controls="mobile-menu"
-        aria-label="メニュー"
-        className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--ba-ink)] hover:bg-[var(--ba-blue-pale)]"
+        aria-label={newCount > 0 ? `メニュー（フォロー中の新着${newCount}件）` : "メニュー"}
+        className="relative flex h-8 w-8 items-center justify-center rounded-lg text-[var(--ba-ink)] hover:bg-[var(--ba-blue-pale)]"
       >
         <svg
           width="22"
@@ -65,6 +68,11 @@ export default function MobileMenu() {
             </>
           )}
         </svg>
+        {newCount > 0 && !open && (
+          <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-pink-500 px-1 text-[10px] font-bold text-white">
+            {newCount > 99 ? "99+" : newCount}
+          </span>
+        )}
       </button>
 
       {open && (

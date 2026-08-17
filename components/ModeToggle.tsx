@@ -47,8 +47,8 @@ export default function ModeToggle({ mode }: { mode: Rating }) {
     <button
       onClick={() => onClick(key)}
       aria-pressed={mode === key}
-      /* スマホは専用行に置くので横は広めに、縦はヘッダーが厚くならないよう抑える */
-      className={`px-5 py-1.5 font-semibold sm:px-3 ${
+      /* スマホはロゴと同じ行に収めるため詰める */
+      className={`px-1.5 py-1.5 font-semibold sm:px-3 ${
         mode === key ? `${activeCls} text-white` : `bg-white text-gray-500 ${hoverCls}`
       }`}
     >
@@ -61,7 +61,7 @@ export default function ModeToggle({ mode }: { mode: Rating }) {
   return (
     <>
       <div
-        className="flex items-center overflow-hidden rounded-full border border-gray-300 text-xs"
+        className="flex items-center overflow-hidden rounded-full border border-gray-300 text-[11px] sm:text-xs"
         role="group"
         aria-label="健全版・きわどい版・R18版の切り替え"
       >

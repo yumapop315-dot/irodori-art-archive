@@ -94,17 +94,14 @@ export default async function RootLayout({
         )}
         {/* z-40: モード確認ダイアログ等がヘッダー内に出るため、上へ戻るボタン(z-30)より上に置く */}
         <header className="sticky top-0 z-40 bg-white/92 backdrop-blur">
-          <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-2 gap-y-1 px-4 py-1.5 sm:gap-x-3 sm:py-2.5">
+          <div className="ba-header-row mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-2 gap-y-1 px-4 py-1.5 sm:gap-x-3 sm:py-2.5">
             <Link href="/" className="flex items-center gap-2">
               <span className={`ba-halo ba-halo${suffix}`} aria-hidden="true"></span>
               <span className={`ba-logo ba-logo${suffix}`}>{SITE_NAME}</span>
               {badge}
             </Link>
             <nav className="flex items-center gap-1 text-sm sm:gap-2">
-              {/* PCはここ。スマホはロゴ行に入らないので下の専用行に出す */}
-              <div className="hidden sm:block">
-                <ModeToggle mode={mode} />
-              </div>
+              <ModeToggle mode={mode} />
               <Link
                 href="/ranking"
                 className="hidden rounded-md px-3 py-1.5 text-[var(--ba-ink)] hover:bg-[var(--ba-blue-pale)] sm:block"
@@ -129,15 +126,9 @@ export default async function RootLayout({
                   <span>登録</span>
                 </Link>
               )}
-              {/* スマホ幅で隠れるリンクの受け皿 */}
+              {/* スマホ幅で隠れるリンクの受け皿（新着バッジ付き） */}
               <MobileMenu />
             </nav>
-
-            {/* スマホ専用: モード切替はバナー内の独立行に全幅で置く
-                （ロゴと同じ行には幅が足りず、狭い端末で崩れるため） */}
-            <div className="flex w-full justify-center sm:hidden">
-              <ModeToggle mode={mode} />
-            </div>
           </div>
           <div className={`ba-stripe-line ba-stripe-line${suffix}`} aria-hidden="true"></div>
         </header>
