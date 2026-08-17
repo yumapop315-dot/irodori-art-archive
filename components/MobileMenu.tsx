@@ -5,8 +5,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { Rating } from "@/lib/db";
-import ModeToggle from "./ModeToggle";
 
 const ITEMS: [string, string][] = [
   ["/ranking", "ランキング"],
@@ -16,7 +14,7 @@ const ITEMS: [string, string][] = [
   ["/mutes", "ミュートリスト"],
 ];
 
-export default function MobileMenu({ mode }: { mode: Rating }) {
+export default function MobileMenu() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
@@ -42,7 +40,7 @@ export default function MobileMenu({ mode }: { mode: Rating }) {
         aria-expanded={open}
         aria-controls="mobile-menu"
         aria-label="メニュー"
-        className="flex h-9 w-9 items-center justify-center rounded-lg text-[var(--ba-ink)] hover:bg-[var(--ba-blue-pale)]"
+        className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--ba-ink)] hover:bg-[var(--ba-blue-pale)]"
       >
         <svg
           width="22"
@@ -79,14 +77,8 @@ export default function MobileMenu({ mode }: { mode: Rating }) {
           />
           <div
             id="mobile-menu"
-            className="absolute right-0 top-full z-40 mt-2 w-60 overflow-hidden rounded-xl border border-gray-200 bg-white py-1 shadow-lg"
+            className="absolute right-0 top-full z-40 mt-2 w-44 overflow-hidden rounded-xl border border-gray-200 bg-white py-1 shadow-lg"
           >
-            {/* 表示モード切替（スマホではヘッダーに置く幅がないためここに集約） */}
-            <div className="border-b border-gray-100 px-4 pb-3 pt-2">
-              <p className="mb-1.5 text-[11px] font-bold text-gray-400">表示モード</p>
-              <ModeToggle mode={mode} />
-            </div>
-
             {ITEMS.map(([href, label]) => (
               <Link
                 key={href}

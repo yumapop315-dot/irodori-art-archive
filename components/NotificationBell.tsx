@@ -22,7 +22,7 @@ export default function NotificationBell() {
   return (
     <Link
       href="/following"
-      className="relative rounded-full p-2 text-gray-500 hover:bg-sky-50"
+      className="relative rounded-full p-1.5 text-gray-500 hover:bg-sky-50 sm:p-2"
       aria-label={count > 0 ? `フォロー中の新着${count}件` : "フォロー中の生徒"}
       title="フォロー中の生徒"
     >

@@ -4,6 +4,7 @@ import { extractTweetId, fetchTweetInfo, FETCH_ERROR_MESSAGES } from "@/lib/twee
 import { autoDetectStudents, type StudentEntry } from "@/lib/normalize";
 import { allow, clientIp } from "@/lib/ratelimit";
 import { getMode } from "@/lib/mode";
+import { isAdminRequest } from "@/lib/adminAuth";
 
 async function registerOne(
   url: string,
@@ -48,6 +49,10 @@ async function registerOne(
 }
 
 export async function POST(req: NextRequest) {
+  // 登録は管理人のみ（一般ユーザーからの投稿受付は廃止）
+  if (!(await isAdminRequest())) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
   const ip = clientIp(req);
   const rating = await getMode();
   const entries = studentEntries();

@@ -3,8 +3,13 @@ import { db, studentEntries } from "@/lib/db";
 import { extractTweetId, fetchTweetInfo, FETCH_ERROR_MESSAGES } from "@/lib/tweet";
 import { suggestTagsFromText } from "@/lib/normalize";
 import { allow, clientIp } from "@/lib/ratelimit";
+import { isAdminRequest } from "@/lib/adminAuth";
 
 export async function POST(req: NextRequest) {
+  // 登録フロー専用なので管理人のみ（外部からのツイート取得代行に使われないように）
+  if (!(await isAdminRequest())) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
   if (!allow(`preview:${clientIp(req)}`, 30, 600)) {
     return NextResponse.json({ error: "リクエストが多すぎます。しばらく待ってください" }, { status: 429 });
   }

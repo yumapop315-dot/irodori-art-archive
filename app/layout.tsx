@@ -9,6 +9,7 @@ import ScrollTopButton from "@/components/ScrollTopButton";
 import { SITE_NAME, SITE_DESC, SITE_URL } from "@/lib/site";
 import { getMode } from "@/lib/mode";
 import { getSetting, NOTICE_KEY } from "@/lib/db";
+import { isAdminRequest } from "@/lib/adminAuth";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -29,6 +30,8 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const mode = await getMode();
+  // 登録は管理人専用になったので、ヘッダーの「登録」も管理人にだけ出す
+  const isAdmin = await isAdminRequest();
   const suffix = mode === "r18" ? "-r18" : mode === "sensitive" ? "-sens" : "";
   const badge =
     mode === "r18" ? (
@@ -91,14 +94,14 @@ export default async function RootLayout({
         )}
         {/* z-40: モード確認ダイアログ等がヘッダー内に出るため、上へ戻るボタン(z-30)より上に置く */}
         <header className="sticky top-0 z-40 bg-white/92 backdrop-blur">
-          <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-2 gap-y-1 px-4 py-2 sm:gap-x-3 sm:py-2.5">
+          <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-2 gap-y-1 px-4 py-1.5 sm:gap-x-3 sm:py-2.5">
             <Link href="/" className="flex items-center gap-2">
               <span className={`ba-halo ba-halo${suffix}`} aria-hidden="true"></span>
               <span className={`ba-logo ba-logo${suffix}`}>{SITE_NAME}</span>
               {badge}
             </Link>
             <nav className="flex items-center gap-1 text-sm sm:gap-2">
-              {/* スマホでは幅が足りないのでメニュー内に移す */}
+              {/* PCはここ。スマホはロゴ行に入らないので下の専用行に出す */}
               <div className="hidden sm:block">
                 <ModeToggle mode={mode} />
               </div>
@@ -121,12 +124,20 @@ export default async function RootLayout({
                 お気に入り
               </Link>
               <NotificationBell />
-              <Link href="/register" className="ba-btn px-4 py-1.5 text-sm sm:px-5">
-                <span>登録</span>
-              </Link>
-              {/* スマホ幅で隠れるリンクとモード切替の受け皿 */}
-              <MobileMenu mode={mode} />
+              {isAdmin && (
+                <Link href="/register" className="ba-btn px-4 py-1.5 text-sm sm:px-5">
+                  <span>登録</span>
+                </Link>
+              )}
+              {/* スマホ幅で隠れるリンクの受け皿 */}
+              <MobileMenu />
             </nav>
+
+            {/* スマホ専用: モード切替はバナー内の独立行に全幅で置く
+                （ロゴと同じ行には幅が足りず、狭い端末で崩れるため） */}
+            <div className="flex w-full justify-center sm:hidden">
+              <ModeToggle mode={mode} />
+            </div>
           </div>
           <div className={`ba-stripe-line ba-stripe-line${suffix}`} aria-hidden="true"></div>
         </header>

@@ -60,6 +60,9 @@ export default async function AdminPage({
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h1 className="ba-heading text-xl">管理画面</h1>
         <div className="flex items-center gap-2">
+          <Link href="/register" className="ba-btn px-5 py-1.5 text-sm">
+            <span>イラストを登録</span>
+          </Link>
           <CheckDeadButton />
           <LogoutButton />
         </div>

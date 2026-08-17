@@ -1,10 +1,17 @@
+import Link from "next/link";
 import { allStudents, RATING_LABELS } from "@/lib/db";
 import { getMode } from "@/lib/mode";
+import { isAdminRequest } from "@/lib/adminAuth";
 import RegisterForm from "@/components/RegisterForm";
+import AdminLogin from "@/components/AdminLogin";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "イラストを登録" };
+// 管理人専用ページなので検索避け
+export const metadata = {
+  title: "イラストを登録",
+  robots: { index: false, follow: false },
+};
 
 const NOTICE = {
   all: {
@@ -31,6 +38,9 @@ const NOTICE = {
 };
 
 export default async function RegisterPage() {
+  // 登録は管理人のみ
+  if (!(await isAdminRequest())) return <AdminLogin />;
+
   const mode = await getMode();
   const n = NOTICE[mode];
   const students = allStudents().map((s) => ({
@@ -56,11 +66,15 @@ export default async function RegisterPage() {
         <ul className="list-inside list-disc space-y-1">
           <li>{n.rule}</li>
           <li>画像が含まれていない投稿は登録できません。</li>
-          <li>キャラ名タグは登録時に選択できます（管理人が後から修正します）。タグのない投稿は、管理人がタグを付けるまで一覧に表示されません。</li>
-          <li>悪質な登録を繰り返す方はアクセスを制限します。</li>
+          <li>キャラ名タグはここで選べます。タグを付けずに登録すると、本文から自動でタグ付けされたうえで<b>非公開</b>のまま残るので、管理画面で確認して公開してください。</li>
         </ul>
       </div>
       <RegisterForm students={students} />
+      <p className="mt-6 text-center text-sm">
+        <Link href="/admin" className="text-sky-600 hover:underline">
+          ← 管理画面へ戻る
+        </Link>
+      </p>
     </div>
   );
 }

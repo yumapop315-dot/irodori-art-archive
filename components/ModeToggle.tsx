@@ -47,7 +47,8 @@ export default function ModeToggle({ mode }: { mode: Rating }) {
     <button
       onClick={() => onClick(key)}
       aria-pressed={mode === key}
-      className={`px-2.5 py-1.5 font-semibold sm:px-3 ${
+      /* スマホは専用行に置くので横は広めに、縦はヘッダーが厚くならないよう抑える */
+      className={`px-5 py-1.5 font-semibold sm:px-3 ${
         mode === key ? `${activeCls} text-white` : `bg-white text-gray-500 ${hoverCls}`
       }`}
     >
