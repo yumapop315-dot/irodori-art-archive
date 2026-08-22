@@ -1,16 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
 import Link from "next/link";
 import Feed from "@/components/Feed";
-import { followLastSeen } from "@/lib/clientStore";
 
 export default function FollowingPage() {
-  // このページを開いた時点で通知バッジをリセット
-  useEffect(() => {
-    followLastSeen.touch();
-  }, []);
-
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">

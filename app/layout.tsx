@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Script from "next/script";
-import NotificationBell from "@/components/NotificationBell";
 import ModeToggle from "@/components/ModeToggle";
 import MobileMenu from "@/components/MobileMenu";
 import JsonLd from "@/components/JsonLd";
@@ -120,13 +119,12 @@ export default async function RootLayout({
               >
                 お気に入り
               </Link>
-              <NotificationBell />
               {isAdmin && (
                 <Link href="/register" className="ba-btn px-4 py-1.5 text-sm sm:px-5">
                   <span>登録</span>
                 </Link>
               )}
-              {/* スマホ幅で隠れるリンクの受け皿（新着バッジ付き） */}
+              {/* スマホ幅で隠れるリンクの受け皿 */}
               <MobileMenu />
             </nav>
           </div>

@@ -53,8 +53,3 @@ export const mutes = {
     write("muted_authors", read<string[]>("muted_authors", []).filter((x) => x !== screenName));
   },
 };
-
-export const followLastSeen = {
-  get: () => read<number>("follow_last_seen", 0),
-  touch: () => write("follow_last_seen", Math.floor(Date.now() / 1000)),
-};

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { searchPosts, postsByIds, countNewSince, studentEntries, toJson } from "@/lib/db";
+import { searchPosts, postsByIds, studentEntries, toJson } from "@/lib/db";
 import { resolveToken } from "@/lib/normalize";
 import { getMode } from "@/lib/mode";
 
@@ -17,16 +17,6 @@ export async function GET(req: NextRequest) {
 
   const students = studentEntries();
   const rawTags = (sp.get("tags") ?? "").split(",").map((t) => t.trim()).filter(Boolean);
-
-  // 通知バッジ用: フォロー中キャラの新着件数
-  const since = Number(sp.get("sinceCount"));
-  if (since > 0) {
-    const names = rawTags
-      .map((t) => resolveToken(t, students))
-      .filter((r) => r.ok)
-      .map((r) => (r as { ok: true; name: string }).name);
-    return NextResponse.json({ count: countNewSince(names, since, rating) });
-  }
 
   // 表記ゆれ解決
   const resolved: string[] = [];

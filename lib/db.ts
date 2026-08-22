@@ -363,23 +363,6 @@ export function postsByIds(ids: number[], rating: Rating | "any" = "all"): PostR
   return rows.map((r) => ({ ...r, tags: r.tags ?? "" }));
 }
 
-export function countNewSince(names: string[], since: number, rating: Rating = "all"): number {
-  if (names.length === 0) return 0;
-  const ph = names.map(() => "?").join(",");
-  return (
-    db
-      .prepare(
-        `SELECT COUNT(DISTINCT p.id) AS c FROM posts p
-         JOIN post_students ps ON ps.post_id = p.id
-         JOIN students s ON s.id = ps.student_id
-         WHERE p.status = 'approved' AND p.rating = ? AND p.auto_tagged = 0
-           AND p.created_at > ? AND s.name IN (${ph})`
-      // タグで結合しているため、タグ未設定の投稿はもともと数えられない
-      )
-      .get(rating, since, ...names) as { c: number }
-  ).c;
-}
-
 export function allStudents(): { id: number; name: string; school: string; aliases: string }[] {
   return db
     .prepare("SELECT id, name, school, aliases FROM students ORDER BY name")
