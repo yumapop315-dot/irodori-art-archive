@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 import { loadJaFont } from "@/lib/ogFont";
-import { SITE_DESC, SITE_NAME, SITE_URL } from "@/lib/site";
+import { SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/site";
 
 export const alt = SITE_NAME;
 export const size = { width: 1200, height: 630 };
@@ -10,7 +10,7 @@ const HOST = SITE_URL.replace(/^https?:\/\//, "");
 
 export default async function Image() {
   const title = SITE_NAME;
-  const desc = SITE_DESC;
+  const desc = SITE_TAGLINE;
   const font = await loadJaFont(title + desc + HOST);
 
   // フォントが取れなかったら英語表記（豆腐文字を避ける）
