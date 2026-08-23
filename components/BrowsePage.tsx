@@ -26,10 +26,8 @@ const PER_PAGE = 50;
 
 const SORT_LABELS: [string, string][] = [
   ["new", "登録順"],
-  ["posted_at", "投稿日順"],
-  ["daily", "人気順(24時間)"],
-  ["monthly", "人気順(月間)"],
-  ["latest_favorites", "最新いいね"],
+  ["monthly", "ランキング"],
+  ["daily", "ランキング（24時間）"],
   ["random", "ランダム"],
 ];
 
@@ -136,7 +134,7 @@ export default async function BrowsePage({
           <Link
             key={key}
             href={sortHref(key)}
-            className={`ba-chip shrink-0 whitespace-nowrap px-4 py-2 ${
+            className={`ba-chip shrink-0 whitespace-nowrap px-3 py-2 sm:px-4 ${
               sort === key ? "ba-chip-active" : ""
             }`}
           >

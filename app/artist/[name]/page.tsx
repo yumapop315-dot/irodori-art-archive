@@ -17,8 +17,9 @@ type Props = {
 
 const SORT_LABELS: [string, string][] = [
   ["new", "登録順"],
-  ["posted_at", "投稿日順"],
-  ["monthly", "人気順"],
+  ["monthly", "ランキング"],
+  ["daily", "ランキング（24時間）"],
+  ["random", "ランダム"],
 ];
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -78,12 +79,16 @@ export default async function ArtistPage({ params, searchParams }: Props) {
       </div>
       <p className="mb-4 text-sm text-gray-500">掲載 {info.count} 件</p>
 
-      <nav className="mb-5 flex flex-wrap gap-2 text-sm" aria-label="並び替え">
+      {/* スマホは横1行スクロール、sm以上は折り返し（トップと同じ挙動） */}
+      <nav
+        className="ba-scroll-x -mx-4 mb-4 flex gap-2 overflow-x-auto px-4 pb-1 text-sm sm:mx-0 sm:mb-5 sm:flex-wrap sm:overflow-x-visible sm:px-0"
+        aria-label="並び替え"
+      >
         {SORT_LABELS.map(([key, label]) => (
           <Link
             key={key}
             href={key === "new" ? `/artist/${encodeURIComponent(screenName)}` : `/artist/${encodeURIComponent(screenName)}?sort=${key}`}
-            className={`ba-chip px-4 py-1.5 ${sort === key ? "ba-chip-active" : ""}`}
+            className={`ba-chip shrink-0 whitespace-nowrap px-3 py-2 sm:px-4 ${sort === key ? "ba-chip-active" : ""}`}
           >
             <span>{label}</span>
           </Link>
