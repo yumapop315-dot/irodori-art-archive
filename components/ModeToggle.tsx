@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { Rating } from "@/lib/db";
+import Portal from "./Portal";
 
 const CONFIRM: Record<Exclude<Rating, "all">, { title: string; body: string; yes: string; color: string }> = {
   sensitive: {
@@ -71,6 +72,7 @@ export default function ModeToggle({ mode }: { mode: Rating }) {
       </div>
 
       {c && (
+        <Portal>
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
           role="dialog"
@@ -97,6 +99,7 @@ export default function ModeToggle({ mode }: { mode: Rating }) {
             </div>
           </div>
         </div>
+        </Portal>
       )}
     </>
   );

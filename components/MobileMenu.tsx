@@ -5,6 +5,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Portal from "./Portal";
 
 const ITEMS: [string, string][] = [
   ["/ranking", "ランキング"],
@@ -69,12 +70,16 @@ export default function MobileMenu() {
 
       {open && (
         <>
-          {/* メニュー外をタップしたら閉じる */}
-          <div
-            className="fixed inset-0 z-30"
-            onClick={() => setOpen(false)}
-            aria-hidden="true"
-          />
+          {/* メニュー外をタップしたら閉じる。
+              ヘッダー内に置くと backdrop-blur のせいでヘッダーの高さぶんしか
+              広がらないので、ポータルで body 直下に出す */}
+          <Portal>
+            <div
+              className="fixed inset-0 z-30"
+              onClick={() => setOpen(false)}
+              aria-hidden="true"
+            />
+          </Portal>
           <div
             id="mobile-menu"
             className="absolute right-0 top-full z-40 mt-2 w-44 overflow-hidden rounded-xl border border-gray-200 bg-white py-1 shadow-lg"

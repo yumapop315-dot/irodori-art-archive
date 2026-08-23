@@ -34,11 +34,11 @@ export default async function RootLayout({
   const suffix = mode === "r18" ? "-r18" : mode === "sensitive" ? "-sens" : "";
   const badge =
     mode === "r18" ? (
-      <span className="rounded-md bg-rose-600 px-1.5 py-0.5 text-[10px] not-italic tracking-normal text-white">
+      <span className="hidden rounded-md bg-rose-600 px-1.5 py-0.5 text-[10px] not-italic tracking-normal text-white sm:inline-block">
         R18
       </span>
     ) : mode === "sensitive" ? (
-      <span className="rounded-md bg-amber-500 px-1.5 py-0.5 text-[10px] not-italic tracking-normal text-white">
+      <span className="hidden rounded-md bg-amber-500 px-1.5 py-0.5 text-[10px] not-italic tracking-normal text-white sm:inline-block">
         きわどい
       </span>
     ) : null;
@@ -91,7 +91,8 @@ export default async function RootLayout({
             strategy="lazyOnload"
           />
         )}
-        {/* z-40: モード確認ダイアログ等がヘッダー内に出るため、上へ戻るボタン(z-30)より上に置く */}
+        {/* z-40: スマホのメニューパネルがヘッダー内に出るため、上へ戻るボタン(z-30)より上に置く。
+            なお全画面オーバーレイは backdrop-blur に閉じ込められるので Portal で body 直下に出すこと */}
         <header className="sticky top-0 z-40 bg-white/92 backdrop-blur">
           <div className="ba-header-row mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-2 gap-y-1 px-4 py-1.5 sm:gap-x-3 sm:py-2.5">
             <Link href="/" className="flex items-center gap-2">
