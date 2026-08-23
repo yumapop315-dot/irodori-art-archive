@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   db, setPostTags, bulkAddTags, bulkDeletePosts, approvePosts, resolveRemovalRequest,
-  deleteStudent, setSetting, coOccurringTags, NOTICE_KEY, NOTICE_MAX,
+  deleteStudent, setSetting, coOccurringTags, allStudents, NOTICE_KEY, NOTICE_MAX,
 } from "@/lib/db";
 import { isAdminRequest } from "@/lib/adminAuth";
 import { isTweetGone } from "@/lib/tweet";
@@ -32,6 +32,17 @@ export async function POST(req: NextRequest) {
     }
     const count = bulkAddTags(postIds, tags);
     return NextResponse.json({ ok: true, count });
+  }
+
+  // タイムライン上のタグ編集で使う生徒マスタ（候補ドロップダウン用）
+  if (action === "listStudents") {
+    return NextResponse.json({
+      students: allStudents().map((s) => ({
+        name: s.name,
+        school: s.school,
+        aliases: s.aliases ? s.aliases.split(",").filter(Boolean) : [],
+      })),
+    });
   }
 
   // 付いているタグと過去によくセットで付けられたタグを返す（タグ付けの候補用）

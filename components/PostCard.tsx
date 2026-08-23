@@ -6,6 +6,7 @@ import type { PostJson } from "@/lib/db";
 import { mutes } from "@/lib/clientStore";
 import { useLike } from "@/lib/useLike";
 import { artistPath, tagPath } from "@/lib/paths";
+import PostCardAdminTools from "./PostCardAdminTools";
 
 function fmtDate(unix: number): string {
   const d = new Date(unix * 1000);
@@ -19,13 +20,20 @@ export default function PostCard({
   post,
   onOpenImage,
   onMuted,
+  isAdmin = false,
+  onRemoved,
 }: {
   post: PostJson;
   onOpenImage: (post: PostJson, index: number) => void;
   onMuted: (screenName: string) => void;
+  /** 管理人ログイン中はカード下部に編集・削除の操作欄を出す */
+  isAdmin?: boolean;
+  /** 削除された / タグが空になり非公開になった投稿を一覧から外すための通知 */
+  onRemoved?: (postId: number) => void;
 }) {
   const { liked, count, toggle: toggleLike } = useLike(post.id, post.like_count);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [tags, setTags] = useState<string[]>(post.tags);
 
   const photo = post.photos[0];
   const aspect = photo && photo.width > 0 ? photo.width / photo.height : 1;
@@ -120,7 +128,7 @@ export default function PostCard({
           <span aria-hidden="true">{liked ? "♥" : "♡"}</span>
           <span>{count}</span>
         </button>
-        {post.tags.map((t) => (
+        {tags.map((t) => (
           <Link
             key={t}
             href={tagPath(t)}
@@ -129,8 +137,22 @@ export default function PostCard({
             {t}
           </Link>
         ))}
-        {post.tags.length === 0 && <span className="text-xs text-gray-400">タグ確認中</span>}
+        {tags.length === 0 && <span className="text-xs text-gray-400">タグ確認中</span>}
       </div>
+
+      {isAdmin && (
+        <PostCardAdminTools
+          postId={post.id}
+          screenName={post.screen_name}
+          tags={tags}
+          onTagsSaved={(next) => {
+            setTags(next);
+            // タグが空＝公開条件を満たさないので一覧から外す
+            if (next.length === 0) onRemoved?.(post.id);
+          }}
+          onDeleted={() => onRemoved?.(post.id)}
+        />
+      )}
     </article>
   );
 }

@@ -1,9 +1,12 @@
-"use client";
-
 import Link from "next/link";
 import Feed from "@/components/Feed";
+import { isAdminRequest } from "@/lib/adminAuth";
 
-export default function FollowingPage() {
+export const dynamic = "force-dynamic";
+
+export const metadata = { title: "フォロー中の生徒" };
+
+export default async function FollowingPage() {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
@@ -12,7 +15,7 @@ export default function FollowingPage() {
           フォローを管理 →
         </Link>
       </div>
-      <Feed source={{ kind: "following" }} />
+      <Feed source={{ kind: "following" }} isAdmin={await isAdminRequest()} />
     </div>
   );
 }

@@ -23,12 +23,15 @@ export default function Feed({
   initialTotal,
   initialUnresolved,
   showAds = false,
+  isAdmin = false,
 }: {
   source: Source;
   initialPosts?: PostJson[];
   initialTotal?: number;
   initialUnresolved?: Unresolved[];
   showAds?: boolean;
+  /** 管理人ログイン中は各カードに編集・削除の操作欄を出す */
+  isAdmin?: boolean;
 }) {
   const [posts, setPosts] = useState<PostJson[]>(initialPosts ?? []);
   const [total, setTotal] = useState(initialTotal ?? 0);
@@ -37,6 +40,7 @@ export default function Feed({
   const [loading, setLoading] = useState(!initialPosts);
   const [done, setDone] = useState(false);
   const [mutedList, setMutedList] = useState<string[]>([]);
+  const [removed, setRemoved] = useState<number[]>([]);
   const [lightbox, setLightbox] = useState<{ post: PostJson; index: number } | null>(null);
   const sentinel = useRef<HTMLDivElement>(null);
   const followTags = useRef<string[]>([]);
@@ -124,8 +128,10 @@ export default function Feed({
     return () => obs.disconnect();
   }, [done, loading, page, loadPage, source.kind]);
 
-  const visible = posts.filter((p) => !mutedList.includes(p.screen_name));
-  const hiddenCount = posts.length - visible.length;
+  const visible = posts.filter(
+    (p) => !mutedList.includes(p.screen_name) && !removed.includes(p.id)
+  );
+  const hiddenCount = posts.filter((p) => mutedList.includes(p.screen_name)).length;
 
   return (
     <div>
@@ -193,6 +199,8 @@ export default function Feed({
                   post={post}
                   onOpenImage={(p, idx) => setLightbox({ post: p, index: idx })}
                   onMuted={() => setMutedList(mutes.get())}
+                  isAdmin={isAdmin}
+                  onRemoved={(id) => setRemoved((prev) => [...prev, id])}
                 />
                 {/* 8件目の後、以降12件ごとにインフィード広告を挟む */}
                 {showAds && (i === 7 || (i > 7 && (i - 7) % 12 === 0)) && (

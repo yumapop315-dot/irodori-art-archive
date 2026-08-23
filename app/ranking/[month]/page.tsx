@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { monthlyArchive, monthsWithPosts, toJson, RATING_LABELS } from "@/lib/db";
 import { getMode } from "@/lib/mode";
 import PostGrid from "@/components/PostGrid";
+import { isAdminRequest } from "@/lib/adminAuth";
 
 export const dynamic = "force-dynamic";
 
@@ -55,7 +56,7 @@ export default async function MonthlyRankingPage({ params }: Props) {
         {parsed.label}に投稿された作品を、いいね数の多い順に最大30件掲載しています。
       </p>
 
-      <PostGrid posts={posts.map(toJson)} ranked />
+      <PostGrid posts={posts.map(toJson)} ranked isAdmin={await isAdminRequest()} />
 
       <nav className="mt-8 flex justify-center gap-4 text-sm">
         {older && (

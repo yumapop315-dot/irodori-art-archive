@@ -2,6 +2,7 @@ import Link from "next/link";
 import { monthsWithPosts, weeklyRanking, toJson, RATING_LABELS } from "@/lib/db";
 import { getMode } from "@/lib/mode";
 import PostGrid from "@/components/PostGrid";
+import { isAdminRequest } from "@/lib/adminAuth";
 import DlsiteSlot from "@/components/DlsiteSlot";
 
 export const dynamic = "force-dynamic";
@@ -32,6 +33,7 @@ export default async function RankingPage() {
         posts={posts.map(toJson)}
         ranked
         promo={<DlsiteSlot mode={mode} variant="infeed" />}
+        isAdmin={await isAdminRequest()}
       />
 
       <div className="mt-8">

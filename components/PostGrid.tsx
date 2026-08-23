@@ -21,20 +21,26 @@ export default function PostGrid({
   showAds = false,
   promo,
   emptyMessage = "まだ表示できる投稿がありません。",
+  isAdmin = false,
 }: {
   posts: PostJson[];
   ranked?: boolean;
   showAds?: boolean;
+  /** 管理人ログイン中は各カードに編集・削除の操作欄を出す */
+  isAdmin?: boolean;
   /** 広告の代わりに差し込む枠（成人向けモードのDLsite導線用） */
   promo?: ReactNode;
   emptyMessage?: string;
 }) {
   const [mutedList, setMutedList] = useState<string[]>([]);
+  const [removed, setRemoved] = useState<number[]>([]);
   const [lightbox, setLightbox] = useState<{ post: PostJson; index: number } | null>(null);
 
   useEffect(() => setMutedList(mutes.get()), []);
 
-  const visible = posts.filter((p) => !mutedList.includes(p.screen_name));
+  const visible = posts.filter(
+    (p) => !mutedList.includes(p.screen_name) && !removed.includes(p.id)
+  );
 
   if (visible.length === 0) {
     return <p className="py-16 text-center text-sm text-gray-500">{emptyMessage}</p>;
@@ -61,6 +67,8 @@ export default function PostGrid({
                 post={post}
                 onOpenImage={(p, idx) => setLightbox({ post: p, index: idx })}
                 onMuted={() => setMutedList(mutes.get())}
+                isAdmin={isAdmin}
+                onRemoved={(id) => setRemoved((prev) => [...prev, id])}
               />
               {/* 8件目の後、以降12件ごとにインフィード広告 */}
               {(showAds || promo) && (i === 7 || (i > 7 && (i - 7) % 12 === 0)) && (

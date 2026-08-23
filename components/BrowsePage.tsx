@@ -11,6 +11,7 @@ import {
   topArtistsForTag,
 } from "@/lib/db";
 import { resolveToken } from "@/lib/normalize";
+import { isAdminRequest } from "@/lib/adminAuth";
 import { artistPath, tagPath } from "@/lib/paths";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 import PopularTags from "@/components/PopularTags";
@@ -42,6 +43,7 @@ export default async function BrowsePage({
   page?: number;
 }) {
   const mode = await getMode();
+  const isAdmin = await isAdminRequest();
   const students = studentEntries();
 
   const resolved: string[] = [];
@@ -222,6 +224,7 @@ export default async function BrowsePage({
             showAds={mode === "all"}
             promo={<DlsiteSlot mode={mode} character={singleTag} variant="infeed" />}
             emptyMessage="イラストが見つかりませんでした。"
+            isAdmin={isAdmin}
           />
           <Pagination
             current={page}

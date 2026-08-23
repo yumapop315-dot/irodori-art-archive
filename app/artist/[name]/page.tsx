@@ -5,6 +5,7 @@ import { authorInfo, searchPosts, toJson } from "@/lib/db";
 import { getMode } from "@/lib/mode";
 import { SITE_NAME } from "@/lib/site";
 import PostGrid from "@/components/PostGrid";
+import { isAdminRequest } from "@/lib/adminAuth";
 import Pagination from "@/components/Pagination";
 
 export const dynamic = "force-dynamic";
@@ -89,7 +90,7 @@ export default async function ArtistPage({ params, searchParams }: Props) {
         ))}
       </nav>
 
-      <PostGrid posts={posts.map(toJson)} />
+      <PostGrid posts={posts.map(toJson)} isAdmin={await isAdminRequest()} />
       <Pagination current={page} totalPages={totalPages} hrefFor={hrefFor} />
     </div>
   );
