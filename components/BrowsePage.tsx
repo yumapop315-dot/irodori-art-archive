@@ -26,7 +26,6 @@ const PER_PAGE = 50;
 
 const SORT_LABELS: [string, string][] = [
   ["new", "登録順"],
-  ["monthly", "ランキング"],
   ["daily", "ランキング（24時間）"],
   ["random", "ランダム"],
 ];
